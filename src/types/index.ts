@@ -79,3 +79,27 @@ export interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
 }
+
+export interface AvailabilitySlot {
+  id: string;
+  userId: string;
+  date: string; // YYYY-MM-DD
+  startTime: string; // HH:MM
+  endTime: string; // HH:MM
+  isBooked: boolean;
+}
+
+export interface Meeting {
+  id: string;
+  title: string;
+  description?: string;
+  hostId: string; // User who set the slot / host
+  inviteeId: string; // User booking the slot / invitee
+  date: string; // YYYY-MM-DD
+  startTime: string; // HH:MM
+  endTime: string; // HH:MM
+  status: 'pending' | 'accepted' | 'declined';
+  senderId: string; // User initiating request
+  receiverId: string; // User receiving request
+  createdAt: string;
+}
