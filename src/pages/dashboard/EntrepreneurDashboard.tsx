@@ -1,32 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Users, Bell, Calendar, TrendingUp, AlertCircle, PlusCircle } from 'lucide-react';
+import { Users, Bell, Calendar, TrendingUp, AlertCircle, PlusCircle, Clock } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Card, CardBody, CardHeader } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { CollaborationRequestCard } from '../../components/collaboration/CollaborationRequestCard';
 import { InvestorCard } from '../../components/investor/InvestorCard';
 import { useAuth } from '../../context/AuthContext';
-import { CollaborationRequest } from '../../types';
+import { CollaborationRequest, Meeting, Investor } from '../../types';
 import { getRequestsForEntrepreneur } from '../../data/collaborationRequests';
-import { investors } from '../../data/users';
+import { investors, findUserById } from '../../data/users';
+import { getMeetingsForUser } from '../../data/meetings';
 
 export const EntrepreneurDashboard: React.FC = () => {
   const { user } = useAuth();
   const [collaborationRequests, setCollaborationRequests] = useState<CollaborationRequest[]>([]);
-  const [recommendedInvestors, setRecommendedInvestors] = useState(investors.slice(0, 3));
+  const [recommendedInvestors] = useState(investors.slice(0, 3));
+  const [meetings, setMeetings] = useState<Meeting[]>([]);
   
   useEffect(() => {
     if (user) {
       // Load collaboration requests
       const requests = getRequestsForEntrepreneur(user.id);
       setCollaborationRequests(requests);
+
+      // Load meetings
+      const userMeetings = getMeetingsForUser(user.id);
+      setMeetings(userMeetings);
     }
   }, [user]);
   
   const handleRequestStatusUpdate = (requestId: string, status: 'accepted' | 'rejected') => {
-    setCollaborationRequests(prevRequests => 
-      prevRequests.map(req => 
+    setCollaborationRequests((prevRequests: CollaborationRequest[]) => 
+      prevRequests.map((req: CollaborationRequest) => 
         req.id === requestId ? { ...req, status } : req
       )
     );
@@ -34,7 +40,7 @@ export const EntrepreneurDashboard: React.FC = () => {
   
   if (!user) return null;
   
-  const pendingRequests = collaborationRequests.filter(req => req.status === 'pending');
+  const pendingRequests = collaborationRequests.filter((req: CollaborationRequest) => req.status === 'pending');
   
   return (
     <div className="space-y-6 animate-fade-in">
@@ -78,7 +84,7 @@ export const EntrepreneurDashboard: React.FC = () => {
               <div>
                 <p className="text-sm font-medium text-secondary-700">Total Connections</p>
                 <h3 className="text-xl font-semibold text-secondary-900">
-                  {collaborationRequests.filter(req => req.status === 'accepted').length}
+                  {collaborationRequests.filter((req: CollaborationRequest) => req.status === 'accepted').length}
                 </h3>
               </div>
             </div>
@@ -93,7 +99,9 @@ export const EntrepreneurDashboard: React.FC = () => {
               </div>
               <div>
                 <p className="text-sm font-medium text-accent-700">Upcoming Meetings</p>
-                <h3 className="text-xl font-semibold text-accent-900">2</h3>
+                <h3 className="text-xl font-semibold text-accent-900">
+                  {meetings.filter((m: Meeting) => m.status === 'accepted').length}
+                </h3>
               </div>
             </div>
           </CardBody>
@@ -115,8 +123,53 @@ export const EntrepreneurDashboard: React.FC = () => {
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Collaboration requests */}
-        <div className="lg:col-span-2 space-y-4">
+        {/* Confirmed Meetings & Collaboration requests */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Confirmed Meetings */}
+          <Card className="glass-card border border-white/40">
+            <CardHeader className="flex justify-between items-center bg-white/40 py-3">
+              <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <Calendar size={18} className="text-primary-600" />
+                Upcoming Confirmed Meetings
+              </h2>
+              <Link to="/calendar" className="text-xs font-semibold text-primary-600 hover:text-primary-500">
+                View Calendar
+              </Link>
+            </CardHeader>
+            <CardBody className="p-4">
+              {meetings.filter((m: Meeting) => m.status === 'accepted').length > 0 ? (
+                <div className="space-y-3">
+                  {meetings.filter((m: Meeting) => m.status === 'accepted').map((meet: Meeting) => {
+                    const guest = findUserById(meet.inviteeId === user.id ? meet.hostId : meet.inviteeId);
+                    return (
+                      <div key={meet.id} className="flex items-center justify-between p-3.5 border border-gray-100 bg-white/60 rounded-xl hover-lift">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-primary-50 flex items-center justify-center text-primary-600">
+                            <Clock size={20} />
+                          </div>
+                          <div>
+                            <h4 className="text-sm font-bold text-gray-900">{meet.title}</h4>
+                            <p className="text-xs text-gray-500">With {guest?.name} ({guest?.role})</p>
+                            <p className="text-[10px] text-gray-400 mt-0.5">{meet.date} @ {meet.startTime} - {meet.endTime}</p>
+                          </div>
+                        </div>
+                        <Badge variant="success">Confirmed</Badge>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="text-center py-6 text-gray-500">
+                  <p className="text-sm">No confirmed meetings scheduled yet.</p>
+                  <Link to="/investors" className="text-xs font-semibold text-primary-600 hover:underline mt-1 inline-block">
+                    Find investors to connect with &rarr;
+                  </Link>
+                </div>
+              )}
+            </CardBody>
+          </Card>
+
+          {/* Collaboration requests */}
           <Card>
             <CardHeader className="flex justify-between items-center">
               <h2 className="text-lg font-medium text-gray-900">Collaboration Requests</h2>
@@ -126,7 +179,7 @@ export const EntrepreneurDashboard: React.FC = () => {
             <CardBody>
               {collaborationRequests.length > 0 ? (
                 <div className="space-y-4">
-                  {collaborationRequests.map(request => (
+                  {collaborationRequests.map((request: CollaborationRequest) => (
                     <CollaborationRequestCard
                       key={request.id}
                       request={request}
@@ -158,7 +211,7 @@ export const EntrepreneurDashboard: React.FC = () => {
             </CardHeader>
             
             <CardBody className="space-y-4">
-              {recommendedInvestors.map(investor => (
+              {recommendedInvestors.map((investor: Investor) => (
                 <InvestorCard
                   key={investor.id}
                   investor={investor}
