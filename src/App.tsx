@@ -30,6 +30,9 @@ import { DealsPage } from './pages/deals/DealsPage';
 // Chat Pages
 import { ChatPage } from './pages/chat/ChatPage';
 
+// Calendar Pages
+import { CalendarPage } from './pages/calendar/CalendarPage';
+
 function App() {
   return (
     <AuthProvider>
@@ -82,6 +85,10 @@ function App() {
           
           <Route path="/deals" element={<DashboardLayout />}>
             <Route index element={<DealsPage />} />
+          </Route>
+          
+          <Route path="/calendar" element={<DashboardLayout />}>
+            <Route index element={<CalendarPage />} />
           </Route>
           
           {/* Chat Routes */}
