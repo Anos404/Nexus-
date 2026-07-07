@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Users, PieChart, Filter, Search, PlusCircle, Calendar, Clock } from 'lucide-react';
+import { Users, PieChart, Filter, Search, PlusCircle, Calendar, Clock, DollarSign } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Card, CardBody, CardHeader } from '../../components/ui/Card';
 import { Input } from '../../components/ui/Input';
@@ -11,17 +11,21 @@ import { Entrepreneur, Meeting } from '../../types';
 import { entrepreneurs, findUserById } from '../../data/users';
 import { getRequestsFromInvestor } from '../../data/collaborationRequests';
 import { getMeetingsForUser } from '../../data/meetings';
+import { getWalletBalance } from '../../data/payments';
+import { TourGuide } from '../../components/ui/TourGuide';
 
 export const InvestorDashboard: React.FC = () => {
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
   const [meetings, setMeetings] = useState<Meeting[]>([]);
+  const [walletBalance, setWalletBalance] = useState(0);
   
   useEffect(() => {
     if (user) {
       const userMeetings = getMeetingsForUser(user.id);
       setMeetings(userMeetings);
+      setWalletBalance(getWalletBalance(user.id));
     }
   }, [user]);
 
@@ -61,7 +65,9 @@ export const InvestorDashboard: React.FC = () => {
   
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+      <TourGuide />
+      
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4" data-tour="dashboard-header">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Discover Startups</h1>
           <p className="text-gray-600">Find and connect with promising entrepreneurs</p>
@@ -110,8 +116,22 @@ export const InvestorDashboard: React.FC = () => {
       </div>
       
       {/* Stats summary */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="bg-primary-50 border border-primary-100">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="bg-emerald-50 border border-emerald-100 hover-lift">
+          <CardBody>
+            <div className="flex items-center">
+              <div className="p-3 bg-emerald-100 rounded-full mr-4">
+                <DollarSign size={20} className="text-emerald-700" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-emerald-700">Available Wallet Balance</p>
+                <h3 className="text-xl font-semibold text-emerald-900">${walletBalance.toLocaleString()}</h3>
+              </div>
+            </div>
+          </CardBody>
+        </Card>
+
+        <Card className="bg-primary-50 border border-primary-100 hover-lift">
           <CardBody>
             <div className="flex items-center">
               <div className="p-3 bg-primary-100 rounded-full mr-4">
@@ -125,7 +145,7 @@ export const InvestorDashboard: React.FC = () => {
           </CardBody>
         </Card>
         
-        <Card className="bg-secondary-50 border border-secondary-100">
+        <Card className="bg-secondary-50 border border-secondary-100 hover-lift">
           <CardBody>
             <div className="flex items-center">
               <div className="p-3 bg-secondary-100 rounded-full mr-4">
@@ -139,7 +159,7 @@ export const InvestorDashboard: React.FC = () => {
           </CardBody>
         </Card>
         
-        <Card className="bg-accent-50 border border-accent-100">
+        <Card className="bg-accent-50 border border-accent-100 hover-lift">
           <CardBody>
             <div className="flex items-center">
               <div className="p-3 bg-accent-100 rounded-full mr-4">

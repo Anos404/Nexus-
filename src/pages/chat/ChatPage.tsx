@@ -93,7 +93,7 @@ export const ChatPage: React.FC = () => {
                 </div>
               </div>
               
-              <div className="flex space-x-2">
+              <div className="flex space-x-2" data-tour="chat-video-info">
                 <Button
                   variant="ghost"
                   size="sm"

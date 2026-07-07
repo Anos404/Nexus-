@@ -247,7 +247,7 @@ IN WITNESS WHEREOF, the parties have executed this Agreement.`;
   const potentialAssignees = allUsers.filter(u => u.id !== currentUser.id);
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-fade-in" data-tour="documents-section">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Document Processing Chamber</h1>

@@ -38,6 +38,27 @@ export const RegisterPage: React.FC = () => {
       setError((err as Error).message);
       setIsLoading(false);
     }
+  const getPasswordStrength = (pwd: string) => {
+    let score = 0;
+    if (!pwd) return { score, label: '', color: 'bg-gray-200', text: '', width: 'w-0' };
+    
+    if (pwd.length >= 8) score += 1;
+    if (/[0-9]/.test(pwd)) score += 1;
+    if (/[A-Z]/.test(pwd) && /[a-z]/.test(pwd)) score += 1;
+    if (/[^A-Za-z0-9]/.test(pwd)) score += 1;
+
+    switch (score) {
+      case 0:
+      case 1:
+        return { score, label: 'Weak', color: 'bg-red-500', text: 'text-red-500', width: 'w-1/4' };
+      case 2:
+        return { score, label: 'Fair', color: 'bg-orange-500', text: 'text-orange-500', width: 'w-2/4' };
+      case 3:
+        return { score, label: 'Good', color: 'bg-yellow-500', text: 'text-yellow-500', width: 'w-3/4' };
+      case 4:
+      default:
+        return { score, label: 'Strong', color: 'bg-green-500', text: 'text-green-500', width: 'w-full' };
+    }
   };
   
   return (
@@ -131,6 +152,26 @@ export const RegisterPage: React.FC = () => {
               fullWidth
               startAdornment={<Lock size={18} />}
             />
+            
+            {password && (
+              <div className="space-y-1.5 mt-1 animate-fade-in">
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-gray-500 font-medium">Password Strength:</span>
+                  <span className={`font-bold ${getPasswordStrength(password).text}`}>
+                    {getPasswordStrength(password).label}
+                  </span>
+                </div>
+                <div className="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
+                  <div className={`h-full ${getPasswordStrength(password).color} ${getPasswordStrength(password).width} transition-all duration-300`} />
+                </div>
+                <div className="text-[10px] text-gray-500 flex flex-wrap gap-x-2">
+                  <span className={password.length >= 8 ? 'text-green-600 font-semibold' : ''}>• Min 8 chars</span>
+                  <span className={/[0-9]/.test(password) ? 'text-green-600 font-semibold' : ''}>• Numbers</span>
+                  <span className={/[A-Z]/.test(password) && /[a-z]/.test(password) ? 'text-green-600 font-semibold' : ''}>• A-Z & a-z</span>
+                  <span className={/[^A-Za-z0-9]/.test(password) ? 'text-green-600 font-semibold' : ''}>• Special char</span>
+                </div>
+              </div>
+            )}
             
             <Input
               label="Confirm password"

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Users, Bell, Calendar, TrendingUp, AlertCircle, PlusCircle, Clock } from 'lucide-react';
+import { Users, Bell, Calendar, TrendingUp, AlertCircle, PlusCircle, Clock, DollarSign } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Card, CardBody, CardHeader } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
@@ -11,12 +11,15 @@ import { CollaborationRequest, Meeting, Investor } from '../../types';
 import { getRequestsForEntrepreneur } from '../../data/collaborationRequests';
 import { investors, findUserById } from '../../data/users';
 import { getMeetingsForUser } from '../../data/meetings';
+import { getWalletBalance } from '../../data/payments';
+import { TourGuide } from '../../components/ui/TourGuide';
 
 export const EntrepreneurDashboard: React.FC = () => {
   const { user } = useAuth();
   const [collaborationRequests, setCollaborationRequests] = useState<CollaborationRequest[]>([]);
   const [recommendedInvestors] = useState(investors.slice(0, 3));
   const [meetings, setMeetings] = useState<Meeting[]>([]);
+  const [walletBalance, setWalletBalance] = useState(0);
   
   useEffect(() => {
     if (user) {
@@ -27,6 +30,9 @@ export const EntrepreneurDashboard: React.FC = () => {
       // Load meetings
       const userMeetings = getMeetingsForUser(user.id);
       setMeetings(userMeetings);
+
+      // Load wallet balance
+      setWalletBalance(getWalletBalance(user.id));
     }
   }, [user]);
   
@@ -44,7 +50,9 @@ export const EntrepreneurDashboard: React.FC = () => {
   
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex justify-between items-center">
+      <TourGuide />
+      
+      <div className="flex justify-between items-center" data-tour="dashboard-header">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Welcome, {user.name}</h1>
           <p className="text-gray-600">Here's what's happening with your startup today</p>
@@ -60,8 +68,22 @@ export const EntrepreneurDashboard: React.FC = () => {
       </div>
       
       {/* Summary cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="bg-primary-50 border border-primary-100">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <Card className="bg-emerald-50 border border-emerald-100 hover-lift">
+          <CardBody>
+            <div className="flex items-center">
+              <div className="p-3 bg-emerald-100 rounded-full mr-4">
+                <DollarSign size={20} className="text-emerald-700" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-emerald-700">Wallet Balance</p>
+                <h3 className="text-xl font-semibold text-emerald-900">${walletBalance.toLocaleString()}</h3>
+              </div>
+            </div>
+          </CardBody>
+        </Card>
+
+        <Card className="bg-primary-50 border border-primary-100 hover-lift">
           <CardBody>
             <div className="flex items-center">
               <div className="p-3 bg-primary-100 rounded-full mr-4">
@@ -75,7 +97,7 @@ export const EntrepreneurDashboard: React.FC = () => {
           </CardBody>
         </Card>
         
-        <Card className="bg-secondary-50 border border-secondary-100">
+        <Card className="bg-secondary-50 border border-secondary-100 hover-lift">
           <CardBody>
             <div className="flex items-center">
               <div className="p-3 bg-secondary-100 rounded-full mr-4">
@@ -91,7 +113,7 @@ export const EntrepreneurDashboard: React.FC = () => {
           </CardBody>
         </Card>
         
-        <Card className="bg-accent-50 border border-accent-100">
+        <Card className="bg-accent-50 border border-accent-100 hover-lift">
           <CardBody>
             <div className="flex items-center">
               <div className="p-3 bg-accent-100 rounded-full mr-4">
@@ -107,7 +129,7 @@ export const EntrepreneurDashboard: React.FC = () => {
           </CardBody>
         </Card>
         
-        <Card className="bg-success-50 border border-success-100">
+        <Card className="bg-success-50 border border-success-100 hover-lift">
           <CardBody>
             <div className="flex items-center">
               <div className="p-3 bg-green-100 rounded-full mr-4">

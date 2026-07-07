@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Menu, X, Bell, MessageCircle, User, LogOut, Building2, CircleDollarSign } from 'lucide-react';
+import { Menu, X, Bell, MessageCircle, User, LogOut, Building2, CircleDollarSign, Play } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Avatar } from '../ui/Avatar';
 import { Button } from '../ui/Button';
@@ -84,6 +84,19 @@ export const Navbar: React.FC = () => {
                   </Link>
                 ))}
                 
+                <Button 
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    if ((window as any).restartNexusTour) {
+                      (window as any).restartNexusTour();
+                    }
+                  }}
+                  leftIcon={<Play size={14} className="fill-current text-primary-600" />}
+                >
+                  Take Tour
+                </Button>
+
                 <Button 
                   variant="ghost"
                   onClick={handleLogout}
