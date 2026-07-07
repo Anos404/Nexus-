@@ -11,6 +11,7 @@ import { Message } from '../../types';
 import { findUserById } from '../../data/users';
 import { getMessagesBetweenUsers, sendMessage, getConversationsForUser } from '../../data/messages';
 import { MessageCircle } from 'lucide-react';
+import { VideoCallOverlay } from '../../components/chat/VideoCallOverlay';
 
 export const ChatPage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
@@ -18,6 +19,7 @@ export const ChatPage: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [conversations, setConversations] = useState<any[]>([]);
+  const [isActiveCall, setIsActiveCall] = useState(false);
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
   
   const chatPartner = userId ? findUserById(userId) : null;
@@ -106,6 +108,7 @@ export const ChatPage: React.FC = () => {
                   size="sm"
                   className="rounded-full p-2"
                   aria-label="Video call"
+                  onClick={() => setIsActiveCall(true)}
                 >
                   <Video size={18} />
                 </Button>
@@ -191,6 +194,26 @@ export const ChatPage: React.FC = () => {
           </div>
         )}
       </div>
+      {isActiveCall && chatPartner && (
+        <VideoCallOverlay
+          currentUser={currentUser}
+          chatPartner={chatPartner}
+          onClose={(durationText) => {
+            setIsActiveCall(false);
+            
+            // Add a mock message about the call ending
+            const message = sendMessage({
+              senderId: currentUser.id,
+              receiverId: userId!,
+              content: `📞 Video call ended (duration: ${durationText})`
+            });
+            setMessages(prev => [...prev, message]);
+            
+            // Update conversation list
+            setConversations(getConversationsForUser(currentUser.id));
+          }}
+        />
+      )}
     </div>
   );
 };
